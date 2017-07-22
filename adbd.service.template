@@ -1,0 +1,15 @@
+[Unit]
+Description=Android Debug Bridge daemon
+
+[Service]
+#TimeoutStartSec=1min
+Restart=always
+RestartSec=2s
+Type=forking
+User=root
+ExecStartPre=/usr/bin/adb kill-server
+ExecStart=/usr/bin/adb start-server
+ExecStop=/usr/bin/adb kill-server
+
+[Install]
+WantedBy=multi-user.target

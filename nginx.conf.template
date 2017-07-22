@@ -1,0 +1,112 @@
+daemon off;
+worker_processes 4;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  upstream stf_app {
+    server __IP_ADDRESS__:3100 max_fails=0;
+  }
+
+  upstream stf_auth {
+    server __IP_ADDRESS__:3200 max_fails=0;
+  }
+
+  upstream stf_storage_apk {
+    server __IP_ADDRESS__:3300 max_fails=0;
+  }
+
+  upstream stf_storage_image {
+    server __IP_ADDRESS__:3400 max_fails=0;
+  }
+
+  upstream stf_storage {
+    server __IP_ADDRESS__:3500 max_fails=0;
+  }
+
+  upstream stf_websocket {
+    server __IP_ADDRESS__:3600 max_fails=0;
+  }
+
+  upstream stf_api {
+    server __IP_ADDRESS__:3700 max_fails=0;
+  }
+
+  types {
+    application/javascript  js;
+    image/gif               gif;
+    image/jpeg              jpg;
+    text/css                css;
+    text/html               html;
+  }
+
+  map $http_upgrade $connection_upgrade {
+    default  upgrade;
+    ''       close;
+  }
+
+  server {
+    listen 80;
+    server_name stf.test;
+    keepalive_timeout 70;
+    root /dev/null;
+
+    resolver 127.0.0.1 valid=300s;
+    resolver_timeout 10s;
+
+    # Handle stf-provider@floor4.service
+    location ~ "^/d/floor4/([^/]+)/(?<port>[0-9]{5})/$" {
+      proxy_pass http://__IP_ADDRESS__:$port/;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_set_header X-Forwarded-For $remote_addr;
+      proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /auth/ {
+      proxy_pass http://stf_auth/auth/;
+    }
+
+    location /s/image/ {
+      proxy_pass http://stf_storage_image;
+    }
+
+    location /s/apk/ {
+      proxy_pass http://stf_storage_apk;
+    }
+
+    location /s/ {
+      client_max_body_size 10240m;
+      client_body_buffer_size 128k;
+      proxy_pass http://stf_storage;
+    }
+
+    location /socket.io/ {
+      proxy_pass http://stf_websocket;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Real-IP $http_x_real_ip;
+    }
+
+    location /gripper/ {
+      proxy_pass http://stf_gripper/gripper/;
+    }
+	
+    location /api/ {
+      proxy_pass http://stf_api/api/;
+    }
+
+
+    location / {
+      proxy_pass http://stf_app;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Real-IP $http_x_real_ip;
+    }
+  }
+}
+
