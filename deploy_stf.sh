@@ -13,6 +13,9 @@
 # 
 #######################################################################################
 
+NETNAME=""
+NETWORK_INTERFACES=$(ls /sys/class/net)
+
 # Get exported IP Adreess 
 [ ! -z "$(echo ${NETWORK_INTERFACES} | grep "wlo1")" ]&&NETNAME="wlo1"
 [ ! -z "$(echo ${NETWORK_INTERFACES} | grep "eno1")" ]&&NETNAME="eno1"
