@@ -93,10 +93,6 @@ http {
       proxy_set_header X-Real-IP $http_x_real_ip;
     }
 
-    location /gripper/ {
-      proxy_pass http://stf_gripper/gripper/;
-    }
-	
     location /api/ {
       proxy_pass http://stf_api/api/;
     }
