@@ -121,7 +121,7 @@ check_return_code
 
 echo "start docker container: storage-temp-3500"
 docker rm -f storage-temp-3500
-docker run -d --name storage-temp-3500 -v /mnt/storage:/data -p 3500:3000 --dns ${DNS_ADDRESS}  openstf/stf stf storage-temp  --port 3000 --save-dir /data
+docker run -d --name storage-temp-3500 -v /mnt/storage:/data -p 3500:3000 --dns ${DNS_ADDRESS}  openstf/stf stf storage-temp  --port 3000 --save-dir /home/stf
 check_return_code
 
 # tri-proxy
